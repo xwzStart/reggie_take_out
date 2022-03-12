@@ -17,6 +17,10 @@
     </properties>
     <dependencies>
 
+
+<!--疫情蔓延了-->
+
+
         <!--短信服务-->
         <dependency>
             <groupId>com.aliyun</groupId>
