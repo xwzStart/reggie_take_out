@@ -10,6 +10,7 @@ import com.sun.media.jfxmedia.logging.Logger;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author xwzStart
@@ -30,6 +32,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 发送验证码
@@ -51,7 +56,13 @@ public class UserController {
             // 175485149",phone,code);
 
             //将生成的验证码存入session,用于后台判断
-            session.setAttribute(phone,code);
+            //session.setAttribute(phone,code);
+
+            //将生成的验证码存入redis
+            redisTemplate.opsForValue().set(phone,code,5, TimeUnit.MINUTES);
+
+
+
             return R.success("登录成功");
         }
 
@@ -72,7 +83,11 @@ public class UserController {
         String phone = map.get("phone").toString();
         String code = map.get("code").toString();
         //从session获取验证码
-        Object sessionCode = session.getAttribute(phone);
+        //Object sessionCode = session.getAttribute(phone);
+
+        //从redis中获取验证码
+        Object sessionCode = redisTemplate.opsForValue().get(phone);
+
         //进行比对
         if(sessionCode != null && sessionCode.equals(code)){
             //匹配,登录成功
@@ -90,6 +105,10 @@ public class UserController {
             }
             //登录成功后,存入session,要不然会被拦截
             session.setAttribute("user", user.getId());
+
+            //如果登陆成功,删除redis中缓存的验证码
+            redisTemplate.delete(phone);
+
             return R.success(user);
         }
         return R.error("登陆失败....");
