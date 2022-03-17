@@ -12,9 +12,15 @@ import java.util.List;
  */
 public interface SetmealService extends IService<Setmeal> {
 
+
+    void updateWithDish(SetmealDto setmealDto);
+
     //删除套餐
     void delWithDish(List<Long> ids);
 
     //添加套餐
     void saveWithDish(SetmealDto setmealDto);
+
+    //根据id查询套餐
+    SetmealDto getByIWithDish(Long id);
 }

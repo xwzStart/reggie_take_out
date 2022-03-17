@@ -119,12 +119,43 @@ public class DishController {
      * @param dishDto
      * @return
      */
-    @PutMapping()
+    @PutMapping
     public R<String> update(@RequestBody DishDto dishDto){
         dishService.updateByIdWithFlavor(dishDto);
 
         return R.success("更新成功");
     }
+
+    /**
+     * 批量修改状态
+     * @param index
+     * @param ids
+     * @return
+     */
+    @PutMapping("/status/{index}")
+    public R<String> updateStatus(@PathVariable int index,@RequestParam List<Long> ids){
+        //stream流遍历所有id,批量修改状态
+        ids.stream().map((id)->{
+            //获取菜品id
+            Dish dishId = dishService.getById(id);
+            if(dishId.getStatus() != index){
+                dishId.setStatus(index);
+            }
+            dishService.updateById(dishId);
+            return dishId;
+
+        }).collect(Collectors.toList());
+        return R.success("修改成功");
+    }
+
+    @DeleteMapping
+    public R<String> delDish(@RequestParam List<Long> ids){
+        dishService.removeByIds(ids);
+        return R.success("删除成功");
+    }
+
+
+
 
     /**
      * 根据条件查询对应的菜品信息

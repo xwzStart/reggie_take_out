@@ -24,6 +24,10 @@ public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements Dis
     @Autowired
     private DishFlavorService dishFlavorService;
 
+    /**
+     * 新增菜品
+     * @param dishDto
+     */
     @Transactional
     @Override
     public void saveWithFlavor(DishDto dishDto) {

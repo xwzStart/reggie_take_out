@@ -9,7 +9,3 @@ out
 gen
 target
 .gitignore
-.idea/
-reggie_take_out.iml
-src/test/
-target/

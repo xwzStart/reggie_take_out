@@ -4,21 +4,20 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itheima.reggie.common.R;
 
-import com.itheima.reggie.dto.DishDto;
+
 import com.itheima.reggie.dto.SetmealDto;
 import com.itheima.reggie.entity.Category;
-import com.itheima.reggie.entity.Dish;
 import com.itheima.reggie.entity.Setmeal;
-import com.itheima.reggie.entity.SetmealDish;
 import com.itheima.reggie.service.CategoryService;
-import com.itheima.reggie.service.SetmealDishService;
 import com.itheima.reggie.service.SetmealService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author xwzStart
@@ -27,6 +26,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/setmeal")
+@Slf4j
 public class SetmealController {
 
     @Autowired
@@ -107,6 +107,49 @@ public class SetmealController {
 
         List<Setmeal> list = setmealService.list(queryWrapper);
         return R.success(list);
+    }
+
+
+    /**
+     * 根据id查询套餐信息
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public R<SetmealDto> getById(@PathVariable Long id){
+        log.info("id:{}",id);
+        SetmealDto byIWithDish = setmealService.getByIWithDish(id);
+        return R.success(byIWithDish);
+    }
+
+    /**
+     * 根据id修改套餐信息
+     * @param setmealDto
+     * @return
+     */
+    @PutMapping
+    public R<String> updateSetmeal(@RequestBody  SetmealDto setmealDto){
+        setmealService.updateWithDish(setmealDto);
+
+        return R.success("修改成功");
+    }
+
+    //修改状态
+    @PutMapping("/status/{index}")
+    public R<String> updateStatus(@PathVariable int index,@RequestParam List<Long> ids){
+        ids.stream().map((id)->{
+            Setmeal setmealId = setmealService.getById(id);
+            if(setmealId.getStatus() != index){
+                setmealId.setStatus(index);
+            }
+            setmealService.updateById(setmealId);
+
+            return setmealId;
+        }).collect(Collectors.toList());
+
+
+
+        return R.success("修改成功");
     }
 
 }

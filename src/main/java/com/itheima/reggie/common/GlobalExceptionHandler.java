@@ -14,6 +14,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 public class GlobalExceptionHandler {
 
     /**
+     * 5555
      * 添加重复异常处理
      * @param ex
      * @return

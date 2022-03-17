@@ -46,9 +46,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
     public void submit(Orders orders) {
         //获取当前用户id
         Long userId = BaseContext.getCurrentId();
+
         //查询当前用户获取购物车数据
         LambdaQueryWrapper<ShoppingCart> ordersWrapper = new LambdaQueryWrapper<>();
-        ordersWrapper.eq(ShoppingCart::getId,userId);
+        ordersWrapper.eq(ShoppingCart::getUserId,userId);
         List<ShoppingCart> cartList = shoppingCartService.list(ordersWrapper);
 
         //判断购物车是否为空
@@ -72,12 +73,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         long id = IdWorker.getId();
 
         //组装订单明细表
+
         List<OrderDetail> detailList = cartList.stream().map((item) ->{
             OrderDetail orderDetail = new OrderDetail();
 
             orderDetail.setOrderId(id);
             //拷贝
             BeanUtils.copyProperties(item,orderDetail);
+
+            amount.addAndGet(item.getAmount().multiply(new BigDecimal(item.getNumber())).intValue());
 
             return orderDetail;
         }).collect(Collectors.toList());

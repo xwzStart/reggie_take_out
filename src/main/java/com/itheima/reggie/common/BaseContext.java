@@ -10,8 +10,6 @@ public class BaseContext {
     private static ThreadLocal<Long> threadLocal = new ThreadLocal<>();
 
     /**
-     *
-     * 555555
      * 设置id
      * @param id
      */

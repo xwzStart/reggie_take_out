@@ -29,6 +29,7 @@ public class Dish implements Serializable {
 
 
     //菜品分类id
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long categoryId;
 
 
