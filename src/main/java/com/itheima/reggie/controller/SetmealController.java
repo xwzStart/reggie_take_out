@@ -13,6 +13,8 @@ import com.itheima.reggie.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -37,6 +39,7 @@ public class SetmealController {
 
 
     @PostMapping
+    @CacheEvict(value ="setmealCache",allEntries = true)
     public R<String> save(@RequestBody SetmealDto SetmealDto){
         setmealService.saveWithDish(SetmealDto);
         return R.success("新增成功");
@@ -95,10 +98,12 @@ public class SetmealController {
 
     /**
      * 根据条件查询套餐数据
+     * 注解Cacheable,先从redis查询数据,没有的话再去数据库查
      * @param setmeal
      * @return
      */
     @GetMapping("/list")
+    @Cacheable(value = "setmealCache" ,key = "#setmeal.categoryId +'_' +#setmeal.status")
     public R<List<Setmeal>> list(Setmeal setmeal){
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(setmeal.getCategoryId() != null,Setmeal::getCategoryId,setmeal.getCategoryId());
@@ -124,10 +129,12 @@ public class SetmealController {
 
     /**
      * 根据id修改套餐信息
+     * CacheEvict注解,清理缓存---allEntries = true意思是清理当前分类下的所有缓存数据
      * @param setmealDto
      * @return
      */
     @PutMapping
+    @CacheEvict(value ="setmealCache",allEntries = true)
     public R<String> updateSetmeal(@RequestBody  SetmealDto setmealDto){
         setmealService.updateWithDish(setmealDto);
 
