@@ -10,6 +10,7 @@ import com.itheima.reggie.entity.Category;
 import com.itheima.reggie.entity.Setmeal;
 import com.itheima.reggie.service.CategoryService;
 import com.itheima.reggie.service.SetmealService;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +25,14 @@ import java.util.stream.Collectors;
 /**
  * @author xwzStart
  * @create 2022-03-07 19:28
+ *
+ * http://localhost:9091/doc.html  查看接口文档
  */
 
 @RestController
 @RequestMapping("/setmeal")
 @Slf4j
+@Api(tags = "套餐相关接口")
 public class SetmealController {
 
     @Autowired
@@ -40,6 +44,7 @@ public class SetmealController {
 
     @PostMapping
     @CacheEvict(value ="setmealCache",allEntries = true)
+    @ApiOperation(value = "新增套餐接口")
     public R<String> save(@RequestBody SetmealDto SetmealDto){
         setmealService.saveWithDish(SetmealDto);
         return R.success("新增成功");
@@ -53,6 +58,12 @@ public class SetmealController {
      * @return
      */
     @GetMapping("/page")
+    @ApiOperation(value = "套餐分页接口")
+    /*@ApiImplicitParams({
+            @ApiImplicitParam(name = "page",value = "页码",required = true),
+            @ApiImplicitParam(name = "pageSize",value = "每页显示条数",required = true),
+            @ApiImplicitParam(name = "name",value = "套餐名称",required = false)
+    })*/
     public R<Page> getByPage(int page, int pageSize, String name){
         Page<Setmeal> setmealPage = new Page<>(page,pageSize);
         //构造分页构造器
@@ -90,6 +101,7 @@ public class SetmealController {
      */
 
     @DeleteMapping
+    @ApiOperation(value = "删除套餐接口")
     public R<String> delSetmeal(@RequestParam List<Long> ids){
         setmealService.delWithDish(ids);
         return R.success("删除成功~");
@@ -104,6 +116,7 @@ public class SetmealController {
      */
     @GetMapping("/list")
     @Cacheable(value = "setmealCache" ,key = "#setmeal.categoryId +'_' +#setmeal.status")
+    @ApiOperation(value = "条件查询套餐数据")
     public R<List<Setmeal>> list(Setmeal setmeal){
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(setmeal.getCategoryId() != null,Setmeal::getCategoryId,setmeal.getCategoryId());
