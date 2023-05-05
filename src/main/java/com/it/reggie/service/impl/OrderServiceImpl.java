@@ -46,6 +46,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
     public void submit(Orders orders) {
         //获取当前用户id
         Long userId = BaseContext.getCurrentId();
+        log.info("--------userId{}",userId);
 
         //查询当前用户获取购物车数据
         LambdaQueryWrapper<ShoppingCart> ordersWrapper = new LambdaQueryWrapper<>();
